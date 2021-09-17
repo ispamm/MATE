@@ -7,7 +7,11 @@
         "clip_max" : 2.0,
         "batch_size": 64,
         "early_stopping": 500,
-        "seed" : 42,
+        "seed": 610,
+        "reg_size" : 0.03,
+        "reg_ent" : 0.01,
+        "T" : 3,
+        "inner_lr" : 0.0001,
         "eval_enabled" : true
     }
 }

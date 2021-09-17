@@ -4,7 +4,7 @@
         "model": "GNN",
         "explainer": "GNN",
         "lr" : 0.003,
-        "epochs" : 30,
+        "epochs" : 100,
         "sample_bias" : 0.0,
         "reg_size" : 0.01,
         "reg_ent" : 1.0,

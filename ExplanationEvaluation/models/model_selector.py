@@ -3,9 +3,6 @@ import os
 
 from ExplanationEvaluation.models.GNN_paper import NodeGCN as GNN_NodeGCN
 from ExplanationEvaluation.models.GNN_paper import GraphGCN as GNN_GraphGCN
-from ExplanationEvaluation.models.PG_paper import NodeGCN as PG_NodeGCN
-from ExplanationEvaluation.models.PG_paper import GraphGCN as PG_GraphGCN
-
 def string_to_model(paper, dataset):
     """
     Given a paper and a dataset return the cooresponding neural model needed for training.
@@ -26,21 +23,6 @@ def string_to_model(paper, dataset):
             return GNN_GraphGCN(10, 2)
         elif dataset == "mutag":
             return GNN_GraphGCN(14, 2)
-        else:
-            raise NotImplementedError
-    elif paper == "PG":
-        if dataset in ['syn1']:
-            return PG_NodeGCN(10, 4)
-        elif dataset in ['syn2']:
-            return PG_NodeGCN(10, 8)
-        elif dataset in ['syn3']:
-            return PG_NodeGCN(10, 2)
-        elif dataset in ['syn4']:
-            return PG_NodeGCN(10, 2)
-        elif dataset == "ba2":
-            return PG_GraphGCN(10, 2)
-        elif dataset == "mutag":
-            return PG_GraphGCN(14, 2)
         else:
             raise NotImplementedError
     else:
