@@ -3,7 +3,7 @@
 
 This repotisory contains the code of MATE (MetA-Train to Explain), a meta-learning framework for improving the level of explainability of a Graph Neural Network at training time. Our approach steers the optimization procedure towards more interpretable minima meanwhile optimizing for the original classification task.
 
-The code is build upon the repository of [Re: Parameterized Explainer for Graph Neural Networks] (https://github.com/LarsHoldijk/RE-ParameterizedExplainerForGraphNeuralNetworks) and we thanks the authors (Maarten Boon, Stijn Henckens, Lars Holdijk and Lysander de Jong) for making their code accessible to everyone.
+The code is build upon the repository of [Re: Parameterized Explainer for Graph Neural Networks](https://github.com/LarsHoldijk/RE-ParameterizedExplainerForGraphNeuralNetworks) and we thanks the authors (Maarten Boon, Stijn Henckens, Lars Holdijk and Lysander de Jong) for making their code accessible to everyone.
 
 ## IPython Notebooks
 - **experiment_model_training**: Meta-trains models with MATE algorithm.
