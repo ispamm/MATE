@@ -390,3 +390,95 @@ def meta_train_graph(_dataset, _paper, args, device):
     print(f"final train_acc:{train_acc}, val_acc: {val_acc}, test_acc: {test_acc}")
 
     store_checkpoint(_paper, _dataset, model, train_acc, val_acc, test_acc)
+
+def train_graph(_dataset, _paper, args):
+    """
+    Train a explainer to explain graph classifications
+    :param _dataset: the dataset we wish to use for training
+    :param _paper: the paper we whish to follow, chose from "GNN" or "PG"
+    :param args: a dict containing the relevant model arguements
+    """
+    graphs, features, labels, train_mask, val_mask, test_mask = load_dataset(_dataset)
+    train_set = create_data_list(graphs, features, labels, train_mask)
+    val_set = create_data_list(graphs, features, labels, val_mask)
+    test_set = create_data_list(graphs, features, labels, test_mask)
+
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=len(val_set), shuffle=False)
+    test_loader = DataLoader(test_set, batch_size=len(test_set), shuffle=False)
+
+    model = model_selector(_paper, _dataset, False)
+
+    # Define graph
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    criterion = torch.nn.CrossEntropyLoss()
+
+    best_val_acc = 0.0
+    best_epoch = 0
+
+    for epoch in range(0, args.epochs):
+        model.train()
+
+        # Use pytorch-geometric batching method
+        for data in train_loader:
+            optimizer.zero_grad()
+            out = model(data.x, data.edge_index, data.batch)
+            loss = criterion(out, data.y)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip_max)
+            optimizer.step()
+
+        model.eval()
+        # Evaluate train
+        with torch.no_grad():
+            train_sum = 0
+            loss = 0
+            for data in train_loader:
+                out = model(data.x, data.edge_index, data.batch)
+                loss += criterion(out, data.y)
+                preds = out.argmax(dim=1)
+                train_sum += (preds == data.y).sum()
+            train_acc = int(train_sum) / int(len(train_set))
+            train_loss = float(loss) / int(len(train_loader))
+
+            eval_data = next(iter(test_loader)) # Loads all test samples
+            out = model(eval_data.x, eval_data.edge_index, eval_data.batch)
+            test_acc = evaluate(out, eval_data.y)
+
+            eval_data = next(iter(val_loader)) # Loads all eval samples
+            out = model(eval_data.x, eval_data.edge_index, eval_data.batch)
+            val_acc = evaluate(out, eval_data.y)
+
+        print(f"Epoch: {epoch}, train_acc: {train_acc:.4f}, val_acc: {val_acc:.4f}, train_loss: {loss:.4f}")
+
+        if val_acc > best_val_acc:  # New best results
+            print("Val improved")
+            best_val_acc = val_acc
+            best_epoch = epoch
+            store_checkpoint(_paper, _dataset, model, train_acc, val_acc, test_acc, best_epoch)
+
+        # Early stopping
+        if epoch - best_epoch > args.early_stopping:
+            break
+
+    model = load_best_model(best_epoch, _paper, _dataset, model, args.eval_enabled)
+
+    with torch.no_grad():
+        train_sum = 0
+        for data in train_loader:
+            out = model(data.x, data.edge_index, data.batch)
+            preds = out.argmax(dim=1)
+            train_sum += (preds == data.y).sum()
+        train_acc = int(train_sum) / int(len(train_set))
+
+        eval_data = next(iter(test_loader))
+        out = model(eval_data.x, eval_data.edge_index, eval_data.batch)
+        test_acc = evaluate(out, eval_data.y)
+
+        eval_data = next(iter(val_loader))
+        out = model(eval_data.x, eval_data.edge_index, eval_data.batch)
+        val_acc = evaluate(out, eval_data.y)
+
+    print(f"final train_acc:{train_acc}, val_acc: {val_acc}, test_acc: {test_acc}")
+
+    store_checkpoint(_paper, _dataset, model, train_acc, val_acc, test_acc)

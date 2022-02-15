@@ -29,7 +29,8 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
 
     thres_index = max(int(edge_weigths.shape[0]-thres_snip),0)
 
-    thres = sorted_edge_weigths[thres_index]
+    #thres = sorted_edge_weigths[thres_index]
+    thres = 1.
     if thres_min == -1:
         filter_thres_index = 0
     else:
@@ -51,20 +52,23 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
             filter_edges.append((graph[0][i].item(),graph[1][i].item()))
             filter_nodes.add(graph[0][i].item())
             filter_nodes.add(graph[1][i].item())
-    num_nodes = len(pos_edges)
-
+    
+    #num_nodes = len(pos_edges)
     # Initialize graph object
     G = nx.Graph()
-
     if not (thres_min == -1):
         # Deal with plotting of node datasets
         G.add_edges_from(filter_edges)
         pos = nx.kamada_kawai_layout(G)
 
         label = []
+        print(idx)
         for node in filter_nodes:
+            print(node)
             label.append(int(labels[node]))
-
+        print(label)
+        
+        if len(label) ==0: return
         for cc in nx.connected_components(G):
             if idx in cc:
                 G = G.subgraph(cc).copy()
@@ -75,7 +79,6 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
                   'slategray', 'mediumseagreen', 'mediumblue', 'orchid', ]
         if dataset=='syn3':
             colors = ['orange', 'blue']
-
 
         if dataset=='syn4':
             colors = ['orange', 'black','black','black','blue']
@@ -116,6 +119,8 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
 
     # Deal with plotting of graph datasets
     else:
+        print(idx)
+        print(gt[0][idx])
         # Format edges
         edges = [(pair[0], pair[1]) for pair in gt[0][idx].T]
         # Obtain all unique nodes
@@ -125,6 +130,7 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
         G.add_edges_from(edges)
         # Let the graph generate all positions
         pos = nx.kamada_kawai_layout(G)
+        
 
         pos_edges = [(u, v) for (u, v) in pos_edges if u in G.nodes() and v in G.nodes()]
 
@@ -152,7 +158,9 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
     if show:
         plt.show()
     else:
-        save_path = f'./qualitative/e_{args.explainer}/m_{args.model}/d_{args.dataset}/'
+        save_path = f'./qualitative/e_subgraphx/standard/d_{dataset}/'
+        #save_path = f'./qualitative/e_subgraphx/mate/d_{dataset}/'
+        #save_path = f'./qualitative/e_{args.explainer}/m_{args.model}/d_{args.dataset}/'
 
         # Generate folders if they do not exist
         Path(save_path).mkdir(parents=True, exist_ok=True)
@@ -160,3 +168,50 @@ def plot(graph, edge_weigths, labels, idx, thres_min, thres_snip, dataset, args=
         # Save figure
         plt.savefig(f'{save_path}{idx}.png')
         plt.clf()
+
+
+def plot_house():
+    
+    G = nx.Graph()
+    G.add_nodes_from([0, 1, 2, 3, 4])
+    G.add_edges_from([(0,1), (0,2), (1,2), (1,3), (2,4), (3,4)])
+    pos = nx.kamada_kawai_layout(G)
+    #pos = nx.draw_planar(G)
+
+    labels = [3,1,1,2,2]
+    
+    colors = ['orange', 'red', 'green', 'blue', 'maroon', 'brown', 'darkslategray', 'paleturquoise', 'darksalmon',
+                'slategray', 'mediumseagreen', 'mediumblue', 'orchid', ]
+
+
+    # Draw a base node
+    j =0
+    for i in range(5):
+        node_size=1000
+        if i==1 and j==0:
+            node_size = 1500
+            j+=1
+        nx.draw_networkx_nodes(G, pos,
+                nodelist=[i],
+                            node_color=colors[labels[i]],
+                            node_size=node_size)
+    # Draw all pos edges
+    nx.draw_networkx_edges(G,
+                           pos,
+                           width=7,
+                           alpha=0.5)
+    nx.draw_networkx_edges(G,
+                           pos,
+                           width=7,
+                           alpha=0.5)
+
+    save_path = f'./qualitative/e_subgraphx/ciaone/'
+    #save_path = f'./qualitative/e_subgraphx/mate/d_{dataset}/'
+    #save_path = f'./qualitative/e_{args.explainer}/m_{args.model}/d_{args.dataset}/'
+
+    # Generate folders if they do not exist
+    Path(save_path).mkdir(parents=True, exist_ok=True)
+    plt.axis('off')
+    # Save figure
+    plt.savefig(f'{save_path}bella.png')
+    plt.clf()

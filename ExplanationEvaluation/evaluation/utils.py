@@ -62,8 +62,10 @@ def evaluation_auc_node(explanations, explanation_labels):
     """
     ground_truth = []
     predictions = []
+    print(explanations)
     for expl in explanations: # Loop over the explanations for each node
-
+        print(expl)
+        print(expl[0].size)
         ground_truth_node = []
         prediction_node = []
 

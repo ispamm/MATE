@@ -37,7 +37,8 @@ def get_pretrained_path(paper, dataset):
     :returns: str; the path to the pre-trined model parameters.
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    path = f"{dir_path}/pretrained/{paper}/{dataset}/best_model"
+    #path = f"{dir_path}/pretrained/{paper}/{dataset}/best_model"
+    path = f"/home/indro/MATE/checkpoints/GNN/{dataset}/best_model"
     return path
 
 

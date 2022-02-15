@@ -27,7 +27,7 @@ def get_classification_task(graphs):
         return "node"
 
 
-def to_torch_graph(graphs, task):
+def to_torch_graph(graphs, task, device):
     """
     Transforms the numpy graphs to torch tensors depending on the task of the model that we want to explain
     :param graphs: list of single numpy graph
@@ -35,9 +35,9 @@ def to_torch_graph(graphs, task):
     :return: torch tensor
     """
     if task == 'graph':
-        return [torch.tensor(g) for g in graphs]
+        return [torch.tensor(g).to(device) for g in graphs]
     else:
-        return torch.tensor(graphs)
+        return torch.tensor(graphs).to(device)
 
 
 def select_explainer(explainer, model, graphs, features, task, epochs, lr, reg_coefs, temp=None, sample_bias=None):
@@ -188,7 +188,6 @@ def replication(config, extension=False, run_qual=True, results_store=True):
         print(f"Run {idx} with seed {s}")
         # Set all seeds needed for reproducibility
         torch.manual_seed(s)
-        torch.cuda.manual_seed(s)
         np.random.seed(s)
 
         inference_eval.reset()
